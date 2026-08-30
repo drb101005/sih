@@ -5,3 +5,5 @@ fastapi>=0.100
 uvicorn>=0.20
 pydantic>=2.0
 pytest>=7.0
+joblib
+scikit-learn

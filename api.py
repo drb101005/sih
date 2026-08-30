@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from maintenance_optimizer.pipeline import OptimisationPipeline
+from model import predict_probability_of_failure
 
 app = FastAPI(title="Maintenance Optimizer API")
 pipeline = OptimisationPipeline("data", max_time_seconds=120, workers=8)
+
 
 class MaintenanceTask(BaseModel):
     task_id: str
@@ -21,8 +23,6 @@ class MaintenanceTask(BaseModel):
     safety_impact: str
     operational_impact: str
 
-    probability_of_failure: float
-
     due_date: str
     overdue_days: float = 0
 
@@ -33,7 +33,9 @@ class MaintenanceTask(BaseModel):
 @app.post("/schedule")
 def schedule(task: MaintenanceTask):
     try:
-        result = pipeline.schedule_task(task.model_dump())
+        task_data=task.model_dump()
+        task_data["probability_of_failure"]=predict_probability_of_failure(task_data)
+        result = pipeline.schedule_task(task_data)
         row = result["schedule"].iloc[0].to_dict()
         return {
             "success": True,
