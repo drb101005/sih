@@ -51,7 +51,22 @@ pip install -r requirements.txt
 uvicorn api:app --reload
 ```
 
-The `/schedule` endpoint accepts one new task. It rebuilds candidates from
-`tasks.csv` + `blocks.csv` and returns the selected block plus structured
-explanation facts. The LLM should explain these facts; it should not choose
-the block.
+Open Swagger UI at `http://127.0.0.1:8000/docs`.
+
+### `POST /schedule`
+
+The endpoint accepts one new task, predicts its failure probability with
+`risk_model_v3_50.pkl`, rebuilds candidates from `tasks.csv` and `blocks.csv`,
+and returns the selected block plus explanation facts.
+
+Do not send `probability_of_failure`; the API derives it from these model
+inputs:
+
+- `defect_severity`, `safety_impact`, `operational_impact`, `asset_criticality`
+- `department`, `task_type`
+- `overdue_days`, `estimated_duration_minutes`, `chainage_km`
+
+The successful response includes `predicted_probability_of_failure`,
+`schedule`, `optimizer`, `validation`, and `explanation_facts`.
+
+The LLM should explain these facts; it should not choose the block.
