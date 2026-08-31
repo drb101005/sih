@@ -33,12 +33,14 @@ class MaintenanceTask(BaseModel):
 @app.post("/schedule")
 def schedule(task: MaintenanceTask):
     try:
-        task_data=task.model_dump()
-        task_data["probability_of_failure"]=predict_probability_of_failure(task_data)
+        task_data = task.model_dump()
+        predicted_probability_of_failure = predict_probability_of_failure(task_data)
+        task_data["probability_of_failure"] = predicted_probability_of_failure
         result = pipeline.schedule_task(task_data)
         row = result["schedule"].iloc[0].to_dict()
         return {
             "success": True,
+            "predicted_probability_of_failure": predicted_probability_of_failure,
             "schedule": row,
             "optimizer": result["optimizer"],
             "validation": result["validation"],

@@ -1,9 +1,11 @@
 import joblib
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 
-artifact = joblib.load("risk_model_v3_50.pkl")
+MODEL_PATH = Path(__file__).resolve().with_name("risk_model_v3_50.pkl")
+artifact = joblib.load(MODEL_PATH)
 
 model = artifact["model"]
 preprocessor = artifact["preprocessor"]
